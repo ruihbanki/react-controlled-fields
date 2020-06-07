@@ -2,8 +2,8 @@ import React from "react";
 
 function useFields(options) {
   const {
-    initialValues = {},
     initialFields = {},
+    initialValues = {},
     validate = () => {},
   } = options;
 
@@ -18,7 +18,7 @@ function useFields(options) {
     };
   });
 
-  const handleChange = React.useCallback(
+  const onChangeFields = React.useCallback(
     (updater) => {
       setState((prevState) => {
         const nextFields = updater(prevState.fields);
@@ -37,7 +37,7 @@ function useFields(options) {
 
   return {
     ...state,
-    handleChange,
+    onChangeFields,
   };
 }
 
