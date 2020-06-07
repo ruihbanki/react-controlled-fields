@@ -6,13 +6,22 @@ import FieldsContext from "./FieldsContext";
 function Field(props) {
   const { children, name } = props;
 
-  const { fields, setField } = useContext(FieldsContext);
+  const { fields, onChange } = useContext(FieldsContext);
+
+  const setProp = React.useCallback(
+    (prop, value) => {
+      onChange((prevFields) => ({
+        ...prevFields,
+        [name]: {
+          ...fields[name],
+          [prop]: value,
+        },
+      }));
+    },
+    [onChange, name]
+  );
 
   const field = fields[name];
-
-  const setProp = (prop, value) => {
-    setField(name, prop, value);
-  };
 
   return children({ field, setProp });
 }

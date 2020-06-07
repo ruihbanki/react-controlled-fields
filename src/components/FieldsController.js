@@ -6,25 +6,10 @@ import FieldsContext from "./FieldsContext";
 function FieldsController(props) {
   const { children, fields, onChange } = props;
 
-  const setField = (name, prop, value) => {
-    const nextFields = { ...fields };
-
-    let field = nextFields[name];
-    if (!field) {
-      field = {};
-      nextFields[name] = field;
-    }
-    field[prop] = value;
-    onChange(nextFields);
-  };
-
-  const context = {
-    fields,
-    setField,
-  };
-
   return (
-    <FieldsContext.Provider value={context}>{children}</FieldsContext.Provider>
+    <FieldsContext.Provider value={{ fields, onChange }}>
+      {children}
+    </FieldsContext.Provider>
   );
 }
 

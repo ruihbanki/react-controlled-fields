@@ -18,13 +18,22 @@ function useFields(options) {
     };
   });
 
-  const handleChange = (_fields) => {
-    const values = getPropFields(_fields, "value");
-    const errors = validate(values);
-    let fields = deletePropFields(_fields, "error");
-    fields = setPropFields(fields, "error", errors);
-    setState({ fields, values, errors });
-  };
+  const handleChange = React.useCallback(
+    (updater) => {
+      setState((prevState) => {
+        const nextFields = updater(prevState.fields);
+        const values = getPropFields(nextFields, "value");
+        const errors = validate(values);
+        const fields = setErrors(nextFields, errors);
+        return {
+          fields,
+          values,
+          errors,
+        };
+      });
+    },
+    [validate]
+  );
 
   return {
     ...state,
@@ -51,17 +60,26 @@ function setPropFields(fields, prop, values) {
   return result;
 }
 
-function deletePropFields(fields, prop) {
-  let result = { ...fields };
-  for (const name in fields) {
-    if (fields[name][prop]) {
-      const field = { ...fields[name] };
-      delete field[prop];
-      result[name] = field;
-    } else {
-      result[name] = fields[name];
+function setErrors(fields, errors) {
+  const result = { ...fields };
+
+  for (const name in errors) {
+    if (errors[name] !== result[name].error) {
+      result[name] = {
+        ...result[name],
+        error: errors[name],
+      };
     }
   }
+
+  for (const name in fields) {
+    if (fields[name].error && !errors[name]) {
+      const nextField = { ...fields[name] };
+      delete nextField.error;
+      result[name] = nextField;
+    }
+  }
+
   return result;
 }
 
