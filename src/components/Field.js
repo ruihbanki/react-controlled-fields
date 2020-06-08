@@ -13,7 +13,7 @@ function Field(props) {
       onChangeFields((prevFields) => ({
         ...prevFields,
         [name]: {
-          ...fields[name],
+          ...prevFields[name],
           [prop]: value,
         },
       }));
