@@ -18,13 +18,36 @@ function useFields(options) {
     };
   });
 
-  const onChangeFields = React.useCallback(
-    (updater) => {
+  const setFields = React.useCallback(
+    (updaterOrFields) => {
       setState((prevState) => {
-        const nextFields = updater(prevState.fields);
-        const values = getPropFields(nextFields, "value");
-        const errors = validate(values);
-        const fields = setErrors(nextFields, errors);
+        let fields = updaterOrFields;
+        if (typeof updaterOrFields === "function") {
+          fields = updaterOrFields(prevState.fields);
+        }
+        const values = getPropFields(fields, "value");
+        const errors = validate(values, fields);
+        fields = setErrors(fields, errors);
+        return {
+          fields,
+          values,
+          errors,
+        };
+      });
+    },
+    [validate]
+  );
+
+  const setValues = React.useCallback(
+    (updaterOrValues) => {
+      setState((prevState) => {
+        let values = updaterOrValues;
+        if (typeof updaterOrValues === "function") {
+          values = updaterOrValues(prevState.values);
+        }
+        let fields = setPropFields(prevState.fields, "value", values);
+        const errors = validate(values, fields);
+        fields = setErrors(fields, errors);
         return {
           fields,
           values,
@@ -37,26 +60,31 @@ function useFields(options) {
 
   return {
     ...state,
-    onChangeFields,
+    setFields,
+    setValues,
   };
 }
 
 function getPropFields(fields, prop) {
   let result = {};
+
   for (const name in fields) {
     result[name] = fields[name][prop];
   }
+
   return result;
 }
 
 function setPropFields(fields, prop, values) {
   let result = { ...fields };
+
   for (const name in values) {
     result[name] = {
       ...fields[name],
       [prop]: values[name],
     };
   }
+
   return result;
 }
 

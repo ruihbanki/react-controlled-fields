@@ -1,10 +1,27 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 
-import useField from "../hooks/useField";
+import FieldsContext from "./FieldsContext";
 
-function Field({ children, name }) {
-  const { field, setFieldProp } = useField(name);
+function Field(props) {
+  const { children, name } = props;
+
+  const { fields, onChangeFields } = useContext(FieldsContext);
+
+  const setFieldProp = React.useCallback(
+    (prop, value) => {
+      onChangeFields((prevFields) => ({
+        ...prevFields,
+        [name]: {
+          ...fields[name],
+          [prop]: value,
+        },
+      }));
+    },
+    [onChangeFields, name]
+  );
+
+  const field = fields[name];
 
   return children({ field, setFieldProp });
 }
