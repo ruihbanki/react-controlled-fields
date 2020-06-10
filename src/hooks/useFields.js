@@ -69,7 +69,7 @@ function getPropFields(fields, prop) {
   let result = {};
 
   for (const name in fields) {
-    result[name] = fields[name][prop];
+    result[name] = fields[name].props?.[prop];
   }
 
   return result;
@@ -81,7 +81,10 @@ function setPropFields(fields, prop, values) {
   for (const name in values) {
     result[name] = {
       ...fields[name],
-      [prop]: values[name],
+      props: {
+        ...fields[name]?.props,
+        [prop]: values[name],
+      },
     };
   }
 
@@ -92,18 +95,23 @@ function setErrors(fields, errors) {
   const result = { ...fields };
 
   for (const name in errors) {
-    if (errors[name] !== result[name].error) {
+    if (errors[name] !== result[name]?.meta?.error) {
       result[name] = {
         ...result[name],
-        error: errors[name],
+        meta: {
+          ...result[name].meta,
+          error: errors[name],
+        },
       };
     }
   }
 
   for (const name in fields) {
-    if (fields[name].error && !errors[name]) {
+    if (fields[name]?.meta?.error && !errors[name]) {
       const nextField = { ...fields[name] };
-      delete nextField.error;
+      const nextMeta = nextField.meta;
+      delete nextMeta.error;
+      nextField.meta = nextMeta;
       result[name] = nextField;
     }
   }

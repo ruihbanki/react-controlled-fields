@@ -14,7 +14,26 @@ function Field(props) {
         ...prevFields,
         [name]: {
           ...prevFields[name],
-          [prop]: value,
+          props: {
+            ...prevFields[name]?.props,
+            [prop]: value,
+          },
+        },
+      }));
+    },
+    [onChangeFields, name]
+  );
+
+  const setFieldMeta = React.useCallback(
+    (prop, value) => {
+      onChangeFields((prevFields) => ({
+        ...prevFields,
+        [name]: {
+          ...prevFields[name],
+          meta: {
+            ...prevFields[name]?.meta,
+            [prop]: value,
+          },
         },
       }));
     },
@@ -23,7 +42,7 @@ function Field(props) {
 
   const field = fields[name];
 
-  return children({ field, setFieldProp });
+  return children({ field, setFieldProp, setFieldMeta });
 }
 
 Field.propTypes = {
