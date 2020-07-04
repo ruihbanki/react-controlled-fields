@@ -1,10 +1,13 @@
 import React from "react";
 
+const empty = {};
+const noop = () => {};
+
 function useFields(options) {
   const {
-    initialFields = {},
-    initialValues = {},
-    validate = () => {},
+    initialFields = empty,
+    initialValues = empty,
+    validate = noop,
   } = options;
 
   const [state, setState] = React.useState(() => {
