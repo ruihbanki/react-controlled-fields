@@ -20,4 +20,4 @@ Field.defaultProps = {
   children: () => {},
 };
 
-export default React.memo(Field);
+export default Field;

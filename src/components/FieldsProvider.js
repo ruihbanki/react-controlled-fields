@@ -5,7 +5,6 @@ import FieldsContext from "./FieldsContext";
 
 function FieldsProvider(props) {
   const { children, fields, onChangeFields } = props;
-
   return (
     <FieldsContext.Provider value={{ fields, onChangeFields }}>
       {children}
@@ -25,4 +24,4 @@ FieldsProvider.defaultProps = {
   onChangeFields: () => {},
 };
 
-export default React.memo(FieldsProvider);
+export default FieldsProvider;

@@ -28,6 +28,9 @@ function useFields(options) {
         if (typeof updaterOrFields === "function") {
           fields = updaterOrFields(prevState.fields);
         }
+        if (fields === prevState.fields) {
+          return prevState;
+        }
         const values = getPropFields(fields, "value");
         const errors = validate(values, fields);
         fields = setErrors(fields, errors);
@@ -47,6 +50,9 @@ function useFields(options) {
         let values = updaterOrValues;
         if (typeof updaterOrValues === "function") {
           values = updaterOrValues(prevState.values);
+        }
+        if (values === prevState.values) {
+          return prevState;
         }
         let fields = setPropFields(prevState.fields, "value", values);
         const errors = validate(values, fields);

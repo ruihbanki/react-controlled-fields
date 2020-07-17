@@ -8,32 +8,42 @@ function useField(name) {
 
   const setFieldProp = React.useCallback(
     (prop, value) => {
-      onChangeFields((prevFields) => ({
-        ...prevFields,
-        [name]: {
-          ...prevFields[name],
-          props: {
-            ...prevFields[name]?.props,
-            [prop]: value,
+      onChangeFields((prevFields) => {
+        if (prevFields?.[name]?.props?.[prop] === value) {
+          return prevFields;
+        }
+        return {
+          ...prevFields,
+          [name]: {
+            ...prevFields[name],
+            props: {
+              ...prevFields[name]?.props,
+              [prop]: value,
+            },
           },
-        },
-      }));
+        };
+      });
     },
     [onChangeFields, name]
   );
 
   const setFieldMeta = React.useCallback(
     (prop, value) => {
-      onChangeFields((prevFields) => ({
-        ...prevFields,
-        [name]: {
-          ...prevFields[name],
-          meta: {
-            ...prevFields[name]?.meta,
-            [prop]: value,
+      onChangeFields((prevFields) => {
+        if (prevFields?.[name]?.meta?.[prop] === value) {
+          return prevFields;
+        }
+        return {
+          ...prevFields,
+          [name]: {
+            ...prevFields[name],
+            meta: {
+              ...prevFields[name]?.meta,
+              [prop]: value,
+            },
           },
-        },
-      }));
+        };
+      });
     },
     [onChangeFields, name]
   );
