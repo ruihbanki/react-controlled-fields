@@ -7,30 +7,21 @@ export function parsePath(path) {
     switch (c) {
       case ".": {
         if (part) {
-          result.push({
-            type: "object",
-            value: part,
-          });
+          result.push(part);
           part = "";
         }
         break;
       }
       case "[": {
         if (part) {
-          result.push({
-            type: "array",
-            value: part,
-          });
+          result.push(part);
           part = "";
         }
         break;
       }
       case "]": {
         if (part) {
-          result.push({
-            type: "object",
-            value: Number(part),
-          });
+          result.push(Number(part));
           part = "";
         }
         break;
@@ -42,10 +33,7 @@ export function parsePath(path) {
   }
 
   if (part) {
-    result.push({
-      type: "object",
-      value: part,
-    });
+    result.push(part);
   }
 
   return result;
@@ -54,21 +42,10 @@ export function parsePath(path) {
 export function getFieldProp(fields, parsedPath, prop) {
   let result = fields;
   for (const item of parsedPath) {
-    result = result[item.value];
+    result = result[item];
     if (!result) {
       return null;
     }
   }
   return result.props[prop];
-}
-
-export function getField(fields, parsedPath) {
-  let result = fields;
-  for (const item of parsedPath) {
-    result = result[item.value];
-    if (!result) {
-      return null;
-    }
-  }
-  return result;
 }

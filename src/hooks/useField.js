@@ -1,54 +1,101 @@
 import React from "react";
 
 import FieldsContext from "../components/FieldsContext";
+import { parsePath, getFieldProp, getField } from "../utils/utils";
 
-function useField(name) {
+function useField(path) {
   const context = React.useContext(FieldsContext) || {};
   const { fields = {}, onChangeFields = () => {} } = context;
+
+  const parsedPath = React.useMemo(() => {
+    return parsePath(path);
+  }, [path]);
 
   const setFieldProp = React.useCallback(
     (prop, value) => {
       onChangeFields((prevFields) => {
-        if (prevFields?.[name]?.props?.[prop] === value) {
+        const prevFieldValue = getFieldProp(prevFields, parsedPath, prop);
+
+        if (prevFieldValue === value) {
           return prevFields;
         }
-        return {
-          ...prevFields,
-          [name]: {
-            ...prevFields[name],
-            props: {
-              ...prevFields[name]?.props,
-              [prop]: value,
-            },
-          },
+
+        const result = { ...prevFields };
+        let current = result;
+        parsedPath.forEach((item) => {
+          let part;
+          if (!current[item.value]) {
+            if (item.type === "array") {
+              part = [];
+            } else {
+              part = {};
+            }
+          } else {
+            if (item.type === "array") {
+              part = [...current[item.value]];
+            } else {
+              part = { ...current[item.value] };
+            }
+          }
+          current[item.value] = part;
+          current = part;
+        });
+
+        current.props = {
+          ...current.props,
+          [prop]: value,
         };
+
+        return result;
       });
     },
-    [onChangeFields, name]
+    [onChangeFields, parsedPath]
   );
 
   const setFieldMeta = React.useCallback(
     (prop, value) => {
       onChangeFields((prevFields) => {
-        if (prevFields?.[name]?.meta?.[prop] === value) {
+        const prevFieldValue = getField(prevFields, parsedPath)?.meta?.[prop];
+
+        if (prevFieldValue === value) {
           return prevFields;
         }
-        return {
-          ...prevFields,
-          [name]: {
-            ...prevFields[name],
-            meta: {
-              ...prevFields[name]?.meta,
-              [prop]: value,
-            },
-          },
+
+        const result = { ...prevFields };
+        let current = result;
+        parsedPath.forEach((item) => {
+          let part;
+          if (!current[item.value]) {
+            if (item.type === "array") {
+              part = [];
+            } else {
+              part = {};
+            }
+          } else {
+            if (item.type === "array") {
+              part = [...current[item.value]];
+            } else {
+              part = { ...current[item.value] };
+            }
+          }
+          current[item.value] = part;
+          current = part;
+        });
+
+        current.meta = {
+          ...current.meta,
+          [prop]: value,
         };
+
+        return result;
       });
     },
-    [onChangeFields, name]
+    [onChangeFields, parsedPath]
   );
 
-  const field = fields[name];
+  const field = getField(fields, parsedPath);
+
+  // console.log(path, field);
 
   return { field, setFieldProp, setFieldMeta };
 }
