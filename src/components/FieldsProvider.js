@@ -4,9 +4,10 @@ import PropTypes from "prop-types";
 import FieldsContext from "./FieldsContext";
 
 function FieldsProvider(props) {
-  const { children, fields, onChangeFields } = props;
+  const { children, fields, onChange } = props;
+  debugger;
   return (
-    <FieldsContext.Provider value={{ fields, onChangeFields }}>
+    <FieldsContext.Provider value={{ fields, onChange }}>
       {children}
     </FieldsContext.Provider>
   );
@@ -15,13 +16,13 @@ function FieldsProvider(props) {
 FieldsProvider.propTypes = {
   children: PropTypes.node,
   fields: PropTypes.object,
-  onChangeFields: PropTypes.func,
+  onChange: PropTypes.func,
 };
 
 FieldsProvider.defaultProps = {
   children: null,
-  fields: {},
-  onChangeFields: () => {},
+  fields: undefined,
+  onChange: undefined,
 };
 
 export default FieldsProvider;

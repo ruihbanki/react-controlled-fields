@@ -1,11 +1,12 @@
 import React from "react";
 
 import FieldsContext from "../components/FieldsContext";
-import { parsePath, getFieldProp, getField } from "../utils/utils";
+import { parsePath, getValueByPath } from "../utils/utils";
 
 function useField(path) {
   const context = React.useContext(FieldsContext) || {};
-  const { fields = {}, onChangeFields = () => {} } = context;
+
+  const { fields, onChange } = context;
 
   const parsedPath = React.useMemo(() => {
     return parsePath(path);
@@ -13,14 +14,18 @@ function useField(path) {
 
   const setFieldProp = React.useCallback(
     (prop, value) => {
-      onChangeFields((prevFields) => {
-        const prevFieldValue = getFieldProp(prevFields, parsedPath, prop);
+      if (!onChange) {
+        return;
+      }
 
-        if (prevFieldValue === value) {
+      onChange((prevFields) => {
+        console.log("prevFields", prevFields);
+        const prevValue = getValueByPath(prevFields[prop], parsedPath);
+        if (prevValue === value) {
           return prevFields;
         }
 
-        const result = { ...prevFields };
+        const result = { ...prevFields[prop] };
         let current = result;
         parsedPath.forEach((item) => {
           let part;
@@ -41,63 +46,27 @@ function useField(path) {
           current = part;
         });
 
-        current.props = {
-          ...current.props,
-          [prop]: value,
-        };
+        console.log("current", current);
 
-        return result;
+        return {
+          ...prevFields,
+          [prop]: current,
+        };
       });
     },
-    [onChangeFields, parsedPath]
+    [onChange, parsedPath]
   );
 
-  const setFieldMeta = React.useCallback(
-    (prop, value) => {
-      onChangeFields((prevFields) => {
-        const prevFieldValue = getField(prevFields, parsedPath)?.meta?.[prop];
-
-        if (prevFieldValue === value) {
-          return prevFields;
-        }
-
-        const result = { ...prevFields };
-        let current = result;
-        parsedPath.forEach((item) => {
-          let part;
-          if (!current[item.value]) {
-            if (item.type === "array") {
-              part = [];
-            } else {
-              part = {};
-            }
-          } else {
-            if (item.type === "array") {
-              part = [...current[item.value]];
-            } else {
-              part = { ...current[item.value] };
-            }
-          }
-          current[item.value] = part;
-          current = part;
-        });
-
-        current.meta = {
-          ...current.meta,
-          [prop]: value,
-        };
-
-        return result;
-      });
+  const setFieldValue = React.useCallback(
+    (value) => {
+      setFieldProp("values", value);
     },
-    [onChangeFields, parsedPath]
+    [setFieldProp]
   );
 
-  const field = getField(fields, parsedPath);
+  const value = getValueByPath(fields.values, parsedPath);
 
-  // console.log(path, field);
-
-  return { field, setFieldProp, setFieldMeta };
+  return { value, setFieldValue };
 }
 
 export default useField;

@@ -4,16 +4,45 @@ const empty = {};
 const noop = () => {};
 
 function useFields(options) {
-  const { values = empty, metas = empty, validate = noop } = options;
+  const {
+    initialFields = empty,
+    initialValues = empty,
+    validate = noop,
+  } = options;
 
   const [state, setState] = React.useState(() => {
+    const fields = setPropFields(initialFields, "value", initialValues);
+    const values = getPropFields(fields, "value");
     const errors = validate(values);
     return {
+      fields,
       values,
-      meta,
       errors,
     };
   });
+
+  const setFields = React.useCallback(
+    (updaterOrFields) => {
+      setState((prevState) => {
+        let fields = updaterOrFields;
+        if (typeof updaterOrFields === "function") {
+          fields = updaterOrFields(prevState.fields);
+        }
+        if (fields === prevState.fields) {
+          return prevState;
+        }
+        const values = getPropFields(fields, "value");
+        const errors = validate(values, fields);
+        fields = setErrors(fields, errors);
+        return {
+          fields,
+          values,
+          errors,
+        };
+      });
+    },
+    [validate]
+  );
 
   const setValues = React.useCallback(
     (updaterOrValues) => {
@@ -25,8 +54,11 @@ function useFields(options) {
         if (values === prevState.values) {
           return prevState;
         }
+        let fields = setPropFields(prevState.fields, "value", values);
         const errors = validate(values, fields);
+        fields = setErrors(fields, errors);
         return {
+          fields,
           values,
           errors,
         };
